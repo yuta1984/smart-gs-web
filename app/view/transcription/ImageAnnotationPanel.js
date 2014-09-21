@@ -6,7 +6,7 @@
     width: 350,
     height: 120,
     floating: true,
-    html: '<div class="annotation-comment">\n  <textarea class="annotation-textarea" placeholder="コメントを入力（先頭に#をつけた単語はタグとして認識されます。例： #京都学派 #kyoto-school）" ></textarea>\n</div>\n<div class="buttons">\n  <a href="#" class="annotation-button save">保存</a>\n  <a href="#" class="annotation-button cancel">キャンセル</a>     \n</div>\n  ',
+    html: '<div class="annotation-comment">\n  <textarea class="annotation-textarea" placeholder="Add a comment (word with leading \'#\' will be recognized as a tag e.g. #kyoto-school）" ></textarea>\n</div>\n<div class="buttons">\n  <a href="#" class="annotation-button save">Save</a>\n  <a href="#" class="annotation-button cancel">Cancel</a>     \n</div>      ',
     hidden: true,
     cls: 'image-annotation-panel',
     style: {
@@ -35,6 +35,12 @@
           return function(e, elem) {
             switch (elem.className) {
               case "annotation-button save":
+                _this.model.set('x', _this.target.getLeft());
+                _this.model.set('y', _this.target.getTop());
+                _this.model.set('w', _this.target.getWidth());
+                _this.model.set('h', _this.target.getHeight());
+                _this.model.set('target_uri', _this.canvas.surf.get('uri'));
+                _this.canvas.surf.get('annotations').push(_this.model);
                 return container.close();
               case "annotation-button cancel":
                 container.canvas.c.remove(container.target);

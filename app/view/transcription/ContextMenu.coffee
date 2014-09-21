@@ -5,15 +5,15 @@ Ext.define 'GSW.view.transcription.ContextMenu',
     Ext.Error.raise "editor not given" unless @editor = config.editor
 
   items: [
-    text: 'TEI属性情報を編集'
+    text: 'Edit TEI attributes'
   ,
-    text: 'マークアップを削除'    
+    text: 'Delete markup'
   ,
     '-'
   ,
-    text: 'アノテーションを編集'
+    text: 'Edit annotation'
   ,
-    text: 'アノテーションを削除'
+    text: 'Remove annotation'
   ]
 
 

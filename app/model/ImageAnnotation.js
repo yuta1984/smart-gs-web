@@ -21,10 +21,10 @@
       return "text/plain";
     },
     getTargetURI: function() {
-      return this.getSurface().getImageURI();
+      return "http://yuta1984.github.io/images/ansei_jou/ansei_jou_03.jpg";
     },
     getTargetType: function() {
-      return "Image";
+      return "image";
     },
     getMotivation: function() {
       return "commenting";

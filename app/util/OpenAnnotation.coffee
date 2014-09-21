@@ -1,7 +1,6 @@
 Ext.define 'GSW.util.OpenAnnotation',
-  requires: []
 
-  prefix = 
+  prefix: ->
     oa:	 "http://www.w3.org/ns/oa#"
     cnt:	 "http://www.w3.org/2011/content#"
     dc:	 "http://purl.org/dc/elements/1.1/"
@@ -15,13 +14,13 @@ Ext.define 'GSW.util.OpenAnnotation',
     trig:	 "http://www.w3.org/2004/03/trix/rdfg-1/"
     gsw:	 "http://smart-gs-web.org/ns#"
 
-  p: (term) ->
-    Ext.Error.raise "undefined prefix" unless @prefix[prefix]
-    @prefix[prefix] + ":" + term
+  p: (prefix, term) ->
+    Ext.Error.raise "undefined prefix" unless @prefix()[prefix]
+    @prefix()[prefix] + ":" + term
 
   write: (anno, callback) ->
     uri = anno.getURI()
-    body = @p("gsw", aano.id)
+    body = @p("gsw", anno.id)
     targetURI = anno.getTargetURI()
     annotatedAt = @wrapData @xsdDateTime(anno.get('annotatedAt'))
     serializedBy = "SMART-GS-Web"
@@ -30,7 +29,7 @@ Ext.define 'GSW.util.OpenAnnotation',
     motivation = anno.get('motivation')
     writer = new window.N3.Writer()
     # prefix block
-    for k,v of @prefix
+    for k,v of @prefix()
       writer.addPrefix k, v
     # annotation block
     writer.addTriple uri, @p("rdf","type"), @p("oa","Annotation")
@@ -43,20 +42,20 @@ Ext.define 'GSW.util.OpenAnnotation',
     writer.addTriple uri, @p("oa","motivatedAt"), @p("oa", motivation)
 
     # annotator block
-    writer.addTriple annotatedBy @p("rdf","type"), @p("foaf","Person")
-    writer.addTriple annotatedBy @p("foaf","name"), @wrapData(anno.getUserName())
+    writer.addTriple annotatedBy, @p("rdf","type"), @p("foaf","Person")
+    writer.addTriple annotatedBy, @p("foaf","name"), @wrapData("dummy user")
 
     # target block
     switch anno.getTargetType()
       when "xml"
-        targetType = @p("dctargetTypes","Text")
+        targetType = @p("dctypes","Text")
         format = @wrapData("text/xml")
       when "image"
-        targetType = @p("dctargetTypes","Image")
+        targetType = @p("dctypes","Image")
       else
-        targetType = @p("dctargetTypes","Text")
+        targetType = @p("dctypes","Text")
         format = @wrapData("text/xml")    
-    writer.addTriple targetURI, @p("rdf","targetType"), targetType
+    writer.addTriple targetURI, @p("rdf","type"), targetType
     writer.addTriple targetURI, @p("dc","format"), format if format
 
     # body block
@@ -65,17 +64,17 @@ Ext.define 'GSW.util.OpenAnnotation',
         bodyType = @p("cnt","ContentAsText")
       when "tag"
         bodyType = @p("oa","Tag")
-    writer.addTriple targetURI, @p("rdf","targetType"), targetType
+    writer.addTriple targetURI, @p("rdf","type"), targetType
     writer.addTriple targetURI, @p("cnt","characterEncoding"), @wrapData("utf-8")
     writer.addTriple targetURI, @p("dc","format"), @wrapData("text/plain")
-    writer.addTriple targetURI, @p("cnt","chars"), anno.getBody()
+    writer.addTriple targetURI, @p("cnt","chars"), @wrapData(anno.getBody())
                 
     # software block
     writer.addTriple serializedBy, @p("rdf","type"), @p("prov","SoftwareAgent")
     writer.addTriple serializedBy, @p("foaf","name"), @wrapData("SMART-GS-Web")
 
     writer.end (err,res)->
-      console.log res
+      callback(res)
 
   xsdDateTime: (dateInt) ->
     date = new Date(dateInt)

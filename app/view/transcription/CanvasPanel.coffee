@@ -5,7 +5,8 @@ Ext.define 'GSW.view.transcription.CanvasPanel',
       'GSW.view.transcription.state.DrawingState'
       'GSW.view.transcription.state.ImageAnnotationState'
       'GSW.view.transcription.SourcePanel'
-      'GSW.util.XmlFormatter'] 
+      'GSW.util.XmlFormatter'
+      'GSW.util.OpenAnnotation'] 
     xtype: "canvas-panel"
     bodyBorder: false
     bodyPadding: 0
@@ -24,7 +25,7 @@ Ext.define 'GSW.view.transcription.CanvasPanel',
         'background-color': "rgb(235,235,235)"
       items: [
         iconCls: null
-        text: 'ソースを見る'
+        text: 'Show source'
         xtye: 'splitbutton'
         menu: [
           text: "TEI"
@@ -39,32 +40,48 @@ Ext.define 'GSW.view.transcription.CanvasPanel',
             tabpanel.setActiveTab tab
         ,
           text: "Open Annotation"
-          handler: -> 
+          handler: ->
+            annotations = @up("canvas-panel").surf.get('annotations')
+            generator = Ext.create "GSW.util.OpenAnnotation"
+            src = ""
+            for a in annotations
+              generator.write a, (str) ->
+                src += str
+            title = "annotations: #{@up('transcription-panel').getTitle()}"
+            tab = Ext.create "GSW.view.transcription.SourcePanel",
+              title: title
+            src = $("<pre />").text(src).html()
+            src = src.split("\n").join("<br/>")
+            tab.setSource src
+            tabpanel = Ext.getCmp("content-tabpanel")
+            tabpanel.add tab
+            tabpanel.setActiveTab tab
+                
         ]
       ,
         '-'
       ,        
         iconCls: null
-        text: 'テキストゾーン'
+        text: 'Text Zone'
         xtye: 'splitbutton'
         menu: [
-          text: "ゾーンを追加"
+          text: "Add"
           handler: -> @up("canvas-panel").switchState "drawing"
         ,
-          text: "ゾーンを削除"
+          text: "Remove"
           handler: ->
             c = @up("canvas-panel").c
             c.remove zone if zone = c.getActiveObject()
         ]
       ,        
         iconCls: null
-        text: 'アノテーション'
+        text: 'Annotation'
         xtye: 'splitbutton'
         menu: [
-          text: "アノテーションを追加"
+          text: "Add"
           handler: -> @up("canvas-panel").switchState "annotating"
         ,
-          text: "アノテーションを削除"
+          text: "Remove"
         ]        
       ]
     ]
@@ -123,6 +140,8 @@ Ext.define 'GSW.view.transcription.CanvasPanel',
       @c.setHeight @getHeight()      
 
     setBackgroundImg: (url) ->
+      @surf = Ext.create 'GSW.model.Surface'
+      @surf.set 'imageURI', @url
       @url = url
       fabric.Image.fromURL url, (img) =>
         @c.remove(@img) if @img
@@ -157,7 +176,7 @@ Ext.define 'GSW.view.transcription.CanvasPanel',
 
     getTeiSource: ->
       doc = $("<sourceDoc></sourceDoc>")
-      surf = $("<surface></surface>").attr("facs", @url)
+      surf = $("<surface></surface>").attr("facs", @surf.get('url'))
       @c.forEachObject (obj) ->
         if obj instanceof fabric.Zone
            surf.append $(obj.model.getTeiText())

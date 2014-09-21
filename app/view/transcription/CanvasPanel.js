@@ -2,7 +2,7 @@
 (function() {
   Ext.define('GSW.view.transcription.CanvasPanel', {
     extend: 'Ext.panel.Panel',
-    requires: ['GSW.view.transcription.state.DefaultState', 'GSW.view.transcription.state.DrawingState', 'GSW.view.transcription.state.ImageAnnotationState', 'GSW.view.transcription.SourcePanel', 'GSW.util.XmlFormatter'],
+    requires: ['GSW.view.transcription.state.DefaultState', 'GSW.view.transcription.state.DrawingState', 'GSW.view.transcription.state.ImageAnnotationState', 'GSW.view.transcription.SourcePanel', 'GSW.util.XmlFormatter', 'GSW.util.OpenAnnotation'],
     xtype: "canvas-panel",
     bodyBorder: false,
     bodyPadding: 0,
@@ -30,7 +30,7 @@
         items: [
           {
             iconCls: null,
-            text: 'ソースを見る',
+            text: 'Show source',
             xtye: 'splitbutton',
             menu: [
               {
@@ -49,21 +49,42 @@
                 }
               }, {
                 text: "Open Annotation",
-                handler: function() {}
+                handler: function() {
+                  var a, annotations, generator, src, tab, tabpanel, title, _i, _len;
+                  annotations = this.up("canvas-panel").surf.get('annotations');
+                  generator = Ext.create("GSW.util.OpenAnnotation");
+                  src = "";
+                  for (_i = 0, _len = annotations.length; _i < _len; _i++) {
+                    a = annotations[_i];
+                    generator.write(a, function(str) {
+                      return src += str;
+                    });
+                  }
+                  title = "annotations: " + (this.up('transcription-panel').getTitle());
+                  tab = Ext.create("GSW.view.transcription.SourcePanel", {
+                    title: title
+                  });
+                  src = $("<pre />").text(src).html();
+                  src = src.split("\n").join("<br/>");
+                  tab.setSource(src);
+                  tabpanel = Ext.getCmp("content-tabpanel");
+                  tabpanel.add(tab);
+                  return tabpanel.setActiveTab(tab);
+                }
               }
             ]
           }, '-', {
             iconCls: null,
-            text: 'テキストゾーン',
+            text: 'Text Zone',
             xtye: 'splitbutton',
             menu: [
               {
-                text: "ゾーンを追加",
+                text: "Add",
                 handler: function() {
                   return this.up("canvas-panel").switchState("drawing");
                 }
               }, {
-                text: "ゾーンを削除",
+                text: "Remove",
                 handler: function() {
                   var c, zone;
                   c = this.up("canvas-panel").c;
@@ -75,16 +96,16 @@
             ]
           }, {
             iconCls: null,
-            text: 'アノテーション',
+            text: 'Annotation',
             xtye: 'splitbutton',
             menu: [
               {
-                text: "アノテーションを追加",
+                text: "Add",
                 handler: function() {
                   return this.up("canvas-panel").switchState("annotating");
                 }
               }, {
-                text: "アノテーションを削除"
+                text: "Remove"
               }
             ]
           }
@@ -181,6 +202,8 @@
       return this.c.setHeight(this.getHeight());
     },
     setBackgroundImg: function(url) {
+      this.surf = Ext.create('GSW.model.Surface');
+      this.surf.set('imageURI', this.url);
       this.url = url;
       return fabric.Image.fromURL(url, (function(_this) {
         return function(img) {
@@ -232,7 +255,7 @@
     getTeiSource: function() {
       var doc, surf;
       doc = $("<sourceDoc></sourceDoc>");
-      surf = $("<surface></surface>").attr("facs", this.url);
+      surf = $("<surface></surface>").attr("facs", this.surf.get('url'));
       this.c.forEachObject(function(obj) {
         if (obj instanceof fabric.Zone) {
           return surf.append($(obj.model.getTeiText()));

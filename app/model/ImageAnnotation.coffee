@@ -11,10 +11,11 @@ Ext.define 'GSW.model.ImageAnnotation',
     "text/plain"
 
   getTargetURI: ->
-    @getSurface().getImageURI()
+    "http://yuta1984.github.io/images/ansei_jou/ansei_jou_03.jpg"
+    #@getSurface().getImageURI()
 
   getTargetType: ->
-    "Image"
+    "image"
   
   getMotivation: ->
     "commenting"

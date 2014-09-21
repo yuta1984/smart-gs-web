@@ -6,13 +6,12 @@ Ext.define 'GSW.view.transcription.ImageAnnotationPanel',
   floating: true
   html: '''
     <div class="annotation-comment">
-      <textarea class="annotation-textarea" placeholder="コメントを入力（先頭に#をつけた単語はタグとして認識されます。例： #京都学派 #kyoto-school）" ></textarea>
+      <textarea class="annotation-textarea" placeholder="Add a comment (word with leading '#' will be recognized as a tag e.g. #kyoto-school）" ></textarea>
     </div>
     <div class="buttons">
-      <a href="#" class="annotation-button save">保存</a>
-      <a href="#" class="annotation-button cancel">キャンセル</a>     
-    </div>
-      
+      <a href="#" class="annotation-button save">Save</a>
+      <a href="#" class="annotation-button cancel">Cancel</a>     
+    </div>      
   '''
   hidden: true
   cls: 'image-annotation-panel'
@@ -35,13 +34,17 @@ Ext.define 'GSW.view.transcription.ImageAnnotationPanel',
       container.getEl().on "click", (e, elem)=>
         switch elem.className
           when "annotation-button save"
-            container.close()
+            @model.set 'x', @target.getLeft()
+            @model.set 'y', @target.getTop()
+            @model.set 'w', @target.getWidth()
+            @model.set 'h', @target.getHeight()
+            @model.set 'target_uri', @canvas.surf.get('uri')
+            @canvas.surf.get('annotations').push @model
+            container.close()            
           when "annotation-button cancel"
             container.canvas.c.remove(container.target)
             container.canvas.c.renderAll()
             container.close()
-        
-           
 
   startHideTimer: ->
     hidePanel = => @hidePanel()

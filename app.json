@@ -147,7 +147,12 @@
 	    "path": "resources/js/n3-browser.min.js",
 	    "bundle": true,
 	    "remote": false
-	}
+	},
+	{
+	    "path": "https://togetherjs.com/togetherjs-min.js",
+	    "bundle": true,
+	    "remote": true
+	}	
     ],
 
     /**

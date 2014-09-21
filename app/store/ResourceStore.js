@@ -7,7 +7,7 @@
       expanded: true,
       children: [
         {
-          text: "文書",
+          text: "Documents",
           children: [
             {
               text: "安政見聞録（上）",
@@ -170,17 +170,17 @@
             }
           ]
         }, {
-          text: "地図・場所",
+          text: "Location/Map",
           expanded: false,
           children: [
             {
               leaf: true,
-              text: "京都",
+              text: "Kyoto",
               type: "map"
             }
           ]
         }, {
-          text: "人物",
+          text: "People",
           expanded: false,
           children: [
             {
@@ -189,27 +189,12 @@
             }
           ]
         }, {
-          text: "時間",
+          text: "Datetime",
           expanded: false,
           children: [
             {
               leaf: true,
               text: "Button.js"
-            }
-          ]
-        }, {
-          text: "メディア",
-          expanded: false,
-          children: [
-            {
-              leaf: false,
-              text: "PDF"
-            }, {
-              leaf: false,
-              text: "画像"
-            }, {
-              leaf: false,
-              text: "動画"
             }
           ]
         }
